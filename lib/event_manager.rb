@@ -1,8 +1,11 @@
 require 'csv'
 require 'erb'
 require 'google/apis/civicinfo_v2'
+require 'time'
 
-
+def add_registration_time(time)
+    registration_times[time.hour] += 1
+end
 def clean_phone_number(phone)
     # If the phone number is 10 digits, assume that it is good
     if phone.length == 10
@@ -60,8 +63,14 @@ contents = CSV.open(
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
+registration_hours = Array.new(24, 0)
+registration_days = Array.new(7, 0)
+
 
 contents.each do |row|
+    registration_time =  Time.strptime(row[:regdate], "%m/%d/%y %H:%M")
+    registration_hours[registration_time.hour] += 1
+    registration_days[registration_time.wday] += 1
     id = row[0]
     name = row[:first_name]
     zipcode = clean_zipcode(row[:zipcode])
@@ -71,4 +80,7 @@ contents.each do |row|
 
     save_thank_you_letter(id, form_letter)
 end
+
+p registration_hours
+p registration_days
 
