@@ -3,6 +3,21 @@ require 'erb'
 require 'google/apis/civicinfo_v2'
 
 
+def clean_phone_number(phone)
+    # If the phone number is 10 digits, assume that it is good
+    if phone.length == 10
+        phone
+    # If the phone number is 11 digits and the first number is 1, trim the 1 and use the remaining 10 digits
+    elsif phone.length == 11 && phone.start_with?('1')
+        phone[1..10] 
+    # If the phone number is less than 10 digits, assume that it is a bad number
+    # If the phone number is 11 digits and the first number is not 1, then it is a bad number
+    # If the phone number is more than 11 digits, assume that it is a bad number
+    else
+        '0000000000'
+    end
+end
+
 def clean_zipcode(zipcode)
     # to_s converts nil to an empty string
     # rjust adds padding zeroes when zipcode has missing digits, but leaves 5 or more digits as they are
