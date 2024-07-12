@@ -3,9 +3,6 @@ require 'erb'
 require 'google/apis/civicinfo_v2'
 require 'time'
 
-def add_registration_time(time)
-    registration_times[time.hour] += 1
-end
 def clean_phone_number(phone)
     # If the phone number is 10 digits, assume that it is good
     if phone.length == 10
@@ -56,7 +53,7 @@ end
 puts 'EventManager initialized'
 
 contents = CSV.open(
-    'event_attendees.csv', 
+    'event_attendees_full.csv', 
     headers: true,
     header_converters: :symbol
 )
@@ -79,8 +76,20 @@ contents.each do |row|
     form_letter = erb_template.result(binding)
 
     save_thank_you_letter(id, form_letter)
+
 end
 
-p registration_hours
-p registration_days
+popular_hours = registration_hours.each_index.select { |index| registration_hours[index] == registration_hours.max }
+popular_days = registration_days.each_index.select { |index| registration_days[index] == registration_days.max }
 
+hours = popular_hours.map { |hour| hour.to_s + ':00 -' + (hour+1).to_s + ':00' }
+days = popular_days.map { |day| Date::DAYNAMES[day] } 
+
+puts "Popular hours are:"
+for hour in hours
+  puts " - #{hour}" 
+end
+puts "Popular days are:" 
+for day in days
+    puts " - #{day}"
+end
